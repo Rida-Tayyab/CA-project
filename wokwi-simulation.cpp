@@ -3,12 +3,12 @@
 #include "DHT.h"
 
 // --- MAPPING HARDWARE ---
-#define PIN_PM25 34       // Potentiometer 1 simulates PM2.5 Sensor (or actual PM2.5 sensor)
-#define PIN_PM10 33       // Potentiometer 2 simulates PM10 Sensor
-#define PIN_CO 35         // Potentiometer 3 simulates CO Sensor (MQ-7) or actual MQ-7
-#define PIN_NO2 32        // Potentiometer 4 simulates NO2 Sensor (MQ-135)
-#define PIN_O3 39         // Potentiometer 5 simulates O3 Sensor
-#define PIN_SO2 36        // Potentiometer 6 simulates SO2 Sensor (MQ-136)
+#define PIN_PM25 34       // Potentiometer 1 - Manual PM2.5 Control
+#define PIN_CO 35         // Potentiometer 2 - Manual CO Control
+#define PIN_PM10 32       // Potentiometer 3 - Manual PM10 Control
+#define PIN_NO2 33        // Potentiometer 4 - Manual NO2 Control
+#define PIN_O3 25         // Potentiometer 5 - Manual O3 Control
+#define PIN_SO2 26        // Potentiometer 6 - Manual SO2 Control
 #define PIN_DHT 15        // DHT22 Sensor (Temperature + Humidity)
 #define PIN_ALARM_LED 4   // Red LED - Alarm
 #define PIN_FAN_LED 5     // Green LED - Fan
@@ -44,8 +44,8 @@ void setup() {
   pinMode(PIN_FAN_LED, OUTPUT);
   pinMode(PIN_VENT_LED, OUTPUT);
   pinMode(PIN_PM25, INPUT);
-  pinMode(PIN_PM10, INPUT);
   pinMode(PIN_CO, INPUT);
+  pinMode(PIN_PM10, INPUT);
   pinMode(PIN_NO2, INPUT);
   pinMode(PIN_O3, INPUT);
   pinMode(PIN_SO2, INPUT);
@@ -55,19 +55,21 @@ void setup() {
   lcd.backlight();
   dht.begin();
 
-  // Intro Screen (Matches your Assembly Header)
+  // Intro Screen
   lcd.setCursor(0, 0);
   lcd.print("SMART AIR MONITORING");
   lcd.setCursor(0, 1);
   lcd.print("SDG 3: Good Health");
   lcd.setCursor(0, 2);
-  lcd.print("System Initializing...");
-  delay(2000);
+  lcd.print("6 Potentiometers");
+  lcd.setCursor(0, 3);
+  lcd.print("System Ready...");
+  delay(3000);
   lcd.clear();
 }
 
 void loop() {
-  // --- STEP 1: READ SENSORS (Simulated Hardware) ---
+  // --- STEP 1: READ SENSORS (All Manual Control via Potentiometers) ---
   
   // Read Temperature and Humidity from DHT22
   float temp = dht.readTemperature();
@@ -79,30 +81,27 @@ void loop() {
     humidity = 50.0;
   }
   
-  // Read PM2.5 from Potentiometer (Map 0-4095 input to 0-300 ug/m3)
-  // User can manually adjust potentiometer to test different values
+  // Read PM2.5 from Potentiometer 1 (0-300 µg/m³)
   int raw_pm = analogRead(PIN_PM25);
   int pm25 = map(raw_pm, 0, 4095, 0, 300);
 
-  // Read PM10 from Potentiometer (Map 0-4095 input to 0-200 ug/m3)
-  int raw_pm10 = analogRead(PIN_PM10);
-  int pm10 = map(raw_pm10, 0, 4095, 0, 200);
-
-  // Read CO from Potentiometer (Map 0-4095 input to 0-300 ppm)
-  // For MQ-7: analogRead returns 0-4095, map to 0-300 ppm
-  // User can manually adjust potentiometer to test different values
+  // Read CO from Potentiometer 2 (0-300 ppm)
   int raw_co = analogRead(PIN_CO);
   int co = map(raw_co, 0, 4095, 0, 300);
 
-  // Read NO2 from Potentiometer (Map 0-4095 input to 0-300 ug/m3)
+  // Read PM10 from Potentiometer 3 (0-200 µg/m³)
+  int raw_pm10 = analogRead(PIN_PM10);
+  int pm10 = map(raw_pm10, 0, 4095, 0, 200);
+
+  // Read NO2 from Potentiometer 4 (0-300 µg/m³)
   int raw_no2 = analogRead(PIN_NO2);
   int no2 = map(raw_no2, 0, 4095, 0, 300);
 
-  // Read O3 from Potentiometer (Map 0-4095 input to 0-300 ug/m3)
+  // Read O3 from Potentiometer 5 (0-300 µg/m³)
   int raw_o3 = analogRead(PIN_O3);
   int o3 = map(raw_o3, 0, 4095, 0, 300);
 
-  // Read SO2 from Potentiometer (Map 0-4095 input to 0-200 ug/m3)
+  // Read SO2 from Potentiometer 6 (0-200 µg/m³)
   int raw_so2 = analogRead(PIN_SO2);
   int so2 = map(raw_so2, 0, 4095, 0, 200);
 
@@ -189,18 +188,22 @@ void loop() {
     digitalWrite(PIN_VENT_LED, LOW);
   }
 
-  // Serial output for debugging and manual input override (optional)
-  Serial.print("PM2.5:"); Serial.print(pm25);
-  Serial.print(" PM10:"); Serial.print(pm10);
-  Serial.print(" CO:"); Serial.print(co);
-  Serial.print(" NO2:"); Serial.print(no2);
-  Serial.print(" O3:"); Serial.print(o3);
-  Serial.print(" SO2:"); Serial.print(so2);
-  Serial.print(" T:"); Serial.print(temp, 1);
-  Serial.print(" H:"); Serial.print(humidity, 1);
-  Serial.print(" | ALARM:"); Serial.print(pmStatus == "HAZARD" || pm10Status == "HAZARD" || coStatus == "HAZARD" || no2Status == "HAZARD" || o3Status == "HAZARD" || so2Status == "HAZARD" || tempStatus == "HAZARD" || humidityStatus == "HAZARD" ? "ON" : "OFF");
-  Serial.print(" FAN:"); Serial.print(pmStatus != "SAFE" ? "ON" : "OFF");
-  Serial.print(" VENT:"); Serial.println(coStatus != "SAFE" || humidityStatus == "HAZARD" || tempStatus == "HAZARD" ? "ON" : "OFF");
+  // Serial output for debugging
+  Serial.println("=== SENSOR READINGS (All Manual via Potentiometers) ===");
+  Serial.print("PM2.5:"); Serial.print(pm25); Serial.print(" ["); Serial.print(pmStatus); Serial.println("]");
+  Serial.print("PM10:"); Serial.print(pm10); Serial.print(" ["); Serial.print(pm10Status); Serial.println("]");
+  Serial.print("CO:"); Serial.print(co); Serial.print(" ["); Serial.print(coStatus); Serial.println("]");
+  Serial.print("NO2:"); Serial.print(no2); Serial.print(" ["); Serial.print(no2Status); Serial.println("]");
+  Serial.print("O3:"); Serial.print(o3); Serial.print(" ["); Serial.print(o3Status); Serial.println("]");
+  Serial.print("SO2:"); Serial.print(so2); Serial.print(" ["); Serial.print(so2Status); Serial.println("]");
+  Serial.print("Temp:"); Serial.print(temp, 1); Serial.print("C ["); Serial.print(tempStatus); Serial.println("]");
+  Serial.print("Humidity:"); Serial.print(humidity, 1); Serial.print("% ["); Serial.print(humidityStatus); Serial.println("]");
+  
+  Serial.println("=== ACTUATORS ===");
+  Serial.print("ALARM:"); Serial.println(pmStatus == "HAZARD" || pm10Status == "HAZARD" || coStatus == "HAZARD" || no2Status == "HAZARD" || o3Status == "HAZARD" || so2Status == "HAZARD" || tempStatus == "HAZARD" || humidityStatus == "HAZARD" ? "ON" : "OFF");
+  Serial.print("FAN:"); Serial.println(pmStatus != "SAFE" ? "ON" : "OFF");
+  Serial.print("VENT:"); Serial.println(coStatus != "SAFE" || humidityStatus == "HAZARD" || tempStatus == "HAZARD" ? "ON" : "OFF");
+  Serial.println();
 
-  delay(500); // Update speed
+  delay(1000); // Update every 1 second
 }
