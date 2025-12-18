@@ -142,7 +142,7 @@ main_loop:
     jal classify
     mv t6, a0
     mv a0, s7
-    li a1, 0
+    li a1, 20
     li a2, 30
     jal classify
     mv s9, a0
