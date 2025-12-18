@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Global Air Command | Intelligence Center</title>
 
-  <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
   <script
     src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -615,17 +614,16 @@
 
       <main class="content-area">
 
-        <!-- SIMULATION CONTROLS -->
         <div id="simControls">
           <div class="sim-slider-group">
             <label class="sim-label">Hardware Input: PM2.5 Sensor</label>
-            <input type="range" id="simPM" min="0" max="300" value="20" oninput="updateSimulatedReadings()">
+            <input type="range" id="simPM" min="0" max="300" value="0" oninput="updateSimulatedReadings()">
             <div style="font-size:10px; color:#666; display:flex; justify-content:space-between;"><span>0
                 (Safe)</span><span>75 (Mod)</span><span>150 (Hazard)</span><span>300</span></div>
           </div>
           <div class="sim-slider-group">
             <label class="sim-label">Hardware Input: CO Sensor</label>
-            <input type="range" id="simCO" min="0" max="300" value="20" oninput="updateSimulatedReadings()">
+            <input type="range" id="simCO" min="0" max="300" value="0" oninput="updateSimulatedReadings()">
             <div style="font-size:10px; color:#666; display:flex; justify-content:space-between;"><span>0
                 (Safe)</span><span>50 (Mod)</span><span>200 (Hazard)</span><span>300</span></div>
           </div>
@@ -645,25 +643,25 @@
           </div>
           <div class="sim-slider-group">
             <label class="sim-label">Hardware Input: PM10 Sensor</label>
-            <input type="range" id="simPM10" min="0" max="200" value="20" oninput="updateSimulatedReadings()">
+            <input type="range" id="simPM10" min="0" max="200" value="0" oninput="updateSimulatedReadings()">
             <div style="font-size:10px; color:#666; display:flex; justify-content:space-between;"><span>0
                 (Safe)</span><span>50 (Mod)</span><span>100 (Hazard)</span><span>200</span></div>
           </div>
           <div class="sim-slider-group">
             <label class="sim-label">Hardware Input: NO2 Sensor</label>
-            <input type="range" id="simNO2" min="0" max="300" value="50" oninput="updateSimulatedReadings()">
+            <input type="range" id="simNO2" min="0" max="300" value="0" oninput="updateSimulatedReadings()">
             <div style="font-size:10px; color:#666; display:flex; justify-content:space-between;"><span>0
                 (Safe)</span><span>100 (Mod)</span><span>200 (Hazard)</span><span>300</span></div>
           </div>
           <div class="sim-slider-group">
             <label class="sim-label">Hardware Input: O3 Sensor</label>
-            <input type="range" id="simO3" min="0" max="300" value="50" oninput="updateSimulatedReadings()">
+            <input type="range" id="simO3" min="0" max="300" value="0" oninput="updateSimulatedReadings()">
             <div style="font-size:10px; color:#666; display:flex; justify-content:space-between;"><span>0
                 (Safe)</span><span>100 (Mod)</span><span>200 (Hazard)</span><span>300</span></div>
           </div>
           <div class="sim-slider-group">
             <label class="sim-label">Hardware Input: SO2 Sensor</label>
-            <input type="range" id="simSO2" min="0" max="200" value="20" oninput="updateSimulatedReadings()">
+            <input type="range" id="simSO2" min="0" max="200" value="0" oninput="updateSimulatedReadings()">
             <div style="font-size:10px; color:#666; display:flex; justify-content:space-between;"><span>0
                 (Safe)</span><span>50 (Mod)</span><span>150 (Hazard)</span><span>200</span></div>
           </div>
@@ -695,22 +693,23 @@
             <div class="c-value" id="dispHumidity">--</div>
             <div class="c-unit">Relative Humidity (%)</div>
           </div>
-          <div class="card">
+          
+          <div class="card extra-kpi" style="display: none;">
             <div class="c-label">PM10</div>
             <div class="c-value" id="dispPM10">--</div>
             <div class="c-unit">PM10 (µg/m³)</div>
           </div>
-          <div class="card">
+          <div class="card extra-kpi" style="display: none;">
             <div class="c-label">Nitrogen Dioxide</div>
             <div class="c-value" id="dispNO2">--</div>
             <div class="c-unit">NO2 (µg/m³)</div>
           </div>
-          <div class="card">
+          <div class="card extra-kpi" style="display: none;">
             <div class="c-label">Ozone</div>
             <div class="c-value" id="dispO3">--</div>
             <div class="c-unit">O3 (µg/m³)</div>
           </div>
-          <div class="card">
+          <div class="card extra-kpi" style="display: none;">
             <div class="c-label">Sulfur Dioxide</div>
             <div class="c-value" id="dispSO2">--</div>
             <div class="c-unit">SO2 (µg/m³)</div>
@@ -844,12 +843,18 @@
         data: {
           labels: [],
           datasets: [
+            // Index 0: PM2.5 (Visible by default)
             { label: 'PM2.5 (µg/m³)', data: [], borderColor: '#10b981', backgroundColor: createGradient('rgb(16, 185, 129)', 0.3), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
-            { label: 'PM10 (µg/m³)', data: [], borderColor: '#22d3ee', backgroundColor: createGradient('rgb(34, 211, 238)', 0.2), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
+            // Index 1: PM10 (Hidden by default)
+            { label: 'PM10 (µg/m³)', hidden: true, data: [], borderColor: '#22d3ee', backgroundColor: createGradient('rgb(34, 211, 238)', 0.2), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
+            // Index 2: CO (Visible by default)
             { label: 'CO (ppm)', data: [], borderColor: '#0abfbc', backgroundColor: createGradient('rgb(10, 191, 188)', 0.3), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
-            { label: 'NO2 (µg/m³)', data: [], borderColor: '#f97316', backgroundColor: createGradient('rgb(249, 115, 22)', 0.2), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
-            { label: 'O3 (µg/m³)', data: [], borderColor: '#8b5cf6', backgroundColor: createGradient('rgb(139, 92, 246)', 0.2), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
-            { label: 'SO2 (µg/m³)', data: [], borderColor: '#ec4899', backgroundColor: createGradient('rgb(236, 72, 153)', 0.2), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }
+            // Index 3: NO2 (Hidden by default)
+            { label: 'NO2 (µg/m³)', hidden: true, data: [], borderColor: '#f97316', backgroundColor: createGradient('rgb(249, 115, 22)', 0.2), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
+            // Index 4: O3 (Hidden by default)
+            { label: 'O3 (µg/m³)', hidden: true, data: [], borderColor: '#8b5cf6', backgroundColor: createGradient('rgb(139, 92, 246)', 0.2), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
+            // Index 5: SO2 (Hidden by default)
+            { label: 'SO2 (µg/m³)', hidden: true, data: [], borderColor: '#ec4899', backgroundColor: createGradient('rgb(236, 72, 153)', 0.2), borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }
           ]
         },
         options: {
@@ -866,7 +871,16 @@
                 color: '#94a3b8',
                 font: { family: 'Inter', size: 10 },
                 usePointStyle: true,
-                padding: 8
+                padding: 8,
+                // FILTER LEGEND ITEMS (Strictly remove unavailable metrics in API mode)
+                filter: function(item, chart) {
+                  // Indices: 0=PM2.5, 1=PM10, 2=CO, 3=NO2, 4=O3, 5=SO2
+                  // If Sim mode is OFF, completely hide indices 1, 3, 4, 5 from legend
+                  if (!isSimulating && [1, 3, 4, 5].includes(item.datasetIndex)) {
+                    return false;
+                  }
+                  return true;
+                }
               },
               position: 'top'
             },
@@ -955,37 +969,69 @@
       isSimulating = !isSimulating;
       const btn = document.getElementById('simBtn');
       const controls = document.getElementById('simControls');
+      const extraCards = document.querySelectorAll('.extra-kpi'); 
+
+      // Reset Chart Data to avoid overlap
+      resetChartData();
 
       if (isSimulating) {
         btn.classList.add('active');
         btn.innerHTML = '<i class="fas fa-link"></i> LINK ACTIVE';
-        controls.style.display = 'grid'; // Show Sliders
+        controls.style.display = 'grid'; 
+        
+        // SHOW EXTRA KPI CARDS
+        extraCards.forEach(card => card.style.display = 'flex');
+
+        // SHOW ALL CHART DATASETS
+        chart.data.datasets.forEach(ds => { ds.hidden = false; });
+        chart.update();
+
         logToTerminal("INITIATING_DIGITAL_TWIN...");
         logToTerminal("MANUAL_SYNC_INTERFACE_READY...");
 
         markersLayer.clearLayers();
-        // Initialize sliders with default values
-        document.getElementById('simPM').value = 20;
-        document.getElementById('simPM10').value = 20;
-        document.getElementById('simCO').value = 20;
-        document.getElementById('simNO2').value = 50;
-        document.getElementById('simO3').value = 50;
-        document.getElementById('simSO2').value = 20;
-        document.getElementById('simTemp').value = 25;
+        // Initialize sliders with ZERO (requested default)
+        document.getElementById('simPM').value = 0;
+        document.getElementById('simPM10').value = 0;
+        document.getElementById('simCO').value = 0;
+        document.getElementById('simNO2').value = 0;
+        document.getElementById('simO3').value = 0;
+        document.getElementById('simSO2').value = 0;
+        document.getElementById('simTemp').value = 25; // Keeping temp at room temp as 0C is freezing
         document.getElementById('simHumidity').value = 50;
+        
         updateSimulatedReadings(); // Run once to set initial state
 
       } else {
         btn.classList.remove('active');
         btn.innerHTML = '<i class="fas fa-plug"></i> CONNECT SIM';
-        controls.style.display = 'none'; // Hide Sliders
+        controls.style.display = 'none'; 
+        
+        // HIDE EXTRA KPI CARDS
+        extraCards.forEach(card => card.style.display = 'none');
+
+        // HIDE EXTRA CHART DATASETS (Datasets 1, 3, 4, 5)
+        chart.data.datasets[1].hidden = true; // PM10
+        chart.data.datasets[3].hidden = true; // NO2
+        chart.data.datasets[4].hidden = true; // O3
+        chart.data.datasets[5].hidden = true; // SO2
+        chart.update();
+
         logToTerminal("SIMULATION_ENDED. RESTORING_CLOUD_DATA...");
         loadPakistanDefault();
       }
     }
 
+    function resetChartData() {
+        chart.data.labels = [];
+        chart.data.datasets.forEach(dataset => {
+            dataset.data = [];
+        });
+        chart.update();
+    }
+
     function updateSimulatedReadings() {
-      if (!isSimulating) return;
+      if (!isSimulating) return; // Strict separation
 
       // 1. Get values from Sliders (Manual Input Controls)
       const pm25 = parseInt(document.getElementById('simPM').value);
@@ -1175,7 +1221,7 @@
       chart.data.datasets[1].data.push(pm10);      // PM10
       chart.data.datasets[2].data.push(co);        // CO
       chart.data.datasets[3].data.push(no2);       // NO2
-      chart.data.datasets[4].data.push(o3);         // O3
+      chart.data.datasets[4].data.push(o3);        // O3
       chart.data.datasets[5].data.push(so2);       // SO2
       chart.update();
     }
@@ -1245,6 +1291,7 @@
 
     function updateDashboard(data) {
       if (!data) return;
+      if (isSimulating) return; // Strict separation: Do not update dashboard with API data if in Sim mode
 
       // Extract real-time sensor values from API
       const pm25Raw = data.iaqi.pm25 ? data.iaqi.pm25.v : 0;
@@ -1502,7 +1549,7 @@
         chart.data.datasets[5].data.shift(); // SO2
       }
       chart.data.labels.push(time);
-      chart.data.datasets[0].data.push(pm25Val);                                    // PM2.5
+      chart.data.datasets[0].data.push(pm25Val);                                      // PM2.5
       chart.data.datasets[1].data.push(pm10Val !== null ? pm10Val : null);         // PM10 (null shows as gap)
       chart.data.datasets[2].data.push(coVal !== null ? coVal : null);              // CO (null shows as gap)
       chart.data.datasets[3].data.push(no2Val !== null ? no2Val : null);           // NO2 (null shows as gap)
